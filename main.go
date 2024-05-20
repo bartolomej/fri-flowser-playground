@@ -6,15 +6,7 @@ import (
 )
 
 func main() {
-	repository := &GitRepository{}
-	emulator := &FlowEmulator{}
-	index := &BlockchainIndex{}
-
-	project := &Project{
-		repository: repository,
-		emulator:   emulator,
-		index:      index,
-	}
+	project := New()
 
 	err := project.Open("https://github.com/nvdtf/flow-nft-scaffold")
 

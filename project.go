@@ -5,7 +5,16 @@ import "fmt"
 type Project struct {
 	emulator   *FlowEmulator
 	repository *GitRepository
-	index      *BlockchainIndex
+}
+
+func New() *Project {
+	repository := &GitRepository{}
+	emulator := &FlowEmulator{}
+
+	return &Project{
+		repository: repository,
+		emulator:   emulator,
+	}
 }
 
 func (p *Project) Open(projectUrl string) error {
@@ -25,8 +34,11 @@ func (p *Project) Open(projectUrl string) error {
 		return err
 	}
 
-	p.emulator.Start()
-	p.index.StartProcessing()
+	err = p.emulator.Start()
+
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

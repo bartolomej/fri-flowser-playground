@@ -8,9 +8,25 @@ type Project struct {
 	index      *BlockchainIndex
 }
 
-func (p *Project) Open(projectUrl string) {
-	fmt.Println("Opening project: " + projectUrl)
-	p.repository.Clone(projectUrl)
+func (p *Project) Open(projectUrl string) error {
+	fmt.Printf("Cloning project: %s\n", projectUrl)
+
+	err := p.repository.Clone(projectUrl)
+
+	if err != nil {
+		return err
+	}
+
+	files, err := p.repository.Files()
+
+	fmt.Printf("Cloned %d files\n", len(files))
+
+	if err != nil {
+		return err
+	}
+
 	p.emulator.Start()
 	p.index.StartProcessing()
+
+	return nil
 }

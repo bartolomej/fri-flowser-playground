@@ -1,9 +1,12 @@
 package main
 
+import (
+	"fmt"
+	"os"
+)
+
 func main() {
-	repository := &GitRepository{
-		Test: "Hello",
-	}
+	repository := &GitRepository{}
 	emulator := &FlowEmulator{}
 	index := &BlockchainIndex{}
 
@@ -13,5 +16,13 @@ func main() {
 		index:      index,
 	}
 
-	project.Open("https://github.com/findonflow/find")
+	err := project.Open("https://github.com/nvdtf/flow-nft-scaffold")
+
+	if err != nil {
+		fmt.Println(fmt.Errorf("error opening project: %v", err))
+		os.Exit(1)
+	}
+
+	// Prevent the function from returning
+	select {}
 }

@@ -2,16 +2,18 @@ package main
 
 import "fmt"
 
-type GitRepository struct{}
+type GitRepository struct {
+	Test string
+}
 
-func (gh GitRepository) Clone(url string) {
+func (gh *GitRepository) Clone(url string) {
 	fmt.Println("Cloning Git repository: " + url)
 }
 
-func (gh GitRepository) Commit() {
+func (gh *GitRepository) Commit() {
 	fmt.Println("Commiting")
 }
 
-func (gh GitRepository) Push() {
+func (gh *GitRepository) Push() {
 	fmt.Println("Pushing")
 }

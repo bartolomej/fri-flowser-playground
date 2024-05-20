@@ -1,11 +1,13 @@
 package main
 
 func main() {
-	repository := GitRepository{}
-	emulator := FlowEmulator{}
-	index := BlockchainIndex{}
+	repository := &GitRepository{
+		Test: "Hello",
+	}
+	emulator := &FlowEmulator{}
+	index := &BlockchainIndex{}
 
-	project := Project{
+	project := &Project{
 		repository: repository,
 		emulator:   emulator,
 		index:      index,

@@ -1,20 +1,51 @@
 import './App.css'
 import Header from './components/Header';
-import MonacoEditor from '@monaco-editor/react';
 import configureCadence from './lib/candance'; 
+
+import { useEffect, useRef } from 'react'
+import Editor, { DiffEditor, useMonaco, loader } from '@monaco-editor/react';
 
 function App() {
   const LANGUAGE_CADENCE = 'cadence';
-  
-  const handleEditorWillMount = (monaco) => {
+  const editorRef = useRef(null);
+
+  const beforeEditorMount = (monaco) => {
     configureCadence(monaco);
+  }
+
+  const handleEditorDidMount = (editor) => {
+
+    editorRef.current = editor;
+
+
+    console.log('Editor instance:', editor);
+
   };
 
+  const setEditorContent = (content) => {
+    if (editorRef.current) {
+      const model = editorRef.current.getModel(); // Ensure getModel method exists
+      if (model) {
+        model.setValue(content);
+        console.log(content + ' test');
+      } else {
+        console.error('Model is undefined');
+      }
+    } else {
+      console.error('Editor instance is undefined');
+    }
+  };
+
+  useEffect(() => {
+    const initialContent = 'Hello, World!';
+    setEditorContent(initialContent);
+  }, []);
 
   return (
     <div className='flex flex-col'>
-      <Header />
-      <MonacoEditor
+      <Header setEditorContent={setEditorContent} />
+
+      <Editor
         theme='vs-dark'
         language={LANGUAGE_CADENCE}
         value={"//candance code"}
@@ -23,7 +54,8 @@ function App() {
         options={{
           automaticLayout: true
         }}
-        beforeMount={handleEditorWillMount}
+        onMount={handleEditorDidMount}
+        beforeMount={beforeEditorMount}
       />
     </div>
   )

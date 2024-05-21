@@ -6,11 +6,13 @@ import (
 	"github.com/go-git/go-billy/v5/memfs"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/storage/memory"
+	"github.com/rs/zerolog"
 	"os"
 	"path"
 )
 
 type Repository struct {
+	logger     *zerolog.Logger
 	repository *git.Repository
 	storage    *memory.Storage
 	fs         billy.Filesystem
@@ -19,6 +21,12 @@ type Repository struct {
 type RepositoryFile struct {
 	Path        string
 	IsDirectory bool
+}
+
+func New(logger *zerolog.Logger) *Repository {
+	return &Repository{
+		logger: logger,
+	}
 }
 
 func (r *Repository) Clone(url string) error {
@@ -39,7 +47,19 @@ func (r *Repository) Clone(url string) error {
 	return nil
 }
 
-func (r *Repository) FileContent(path string) ([]byte, error) {
+func (r *Repository) Stat(path string) (os.FileInfo, error) {
+	return r.fs.Stat(path)
+}
+
+func (r *Repository) MkdirAll(path string, perm os.FileMode) error {
+	panic("Unimplemented")
+}
+
+func (r *Repository) WriteFile(filename string, data []byte, perm os.FileMode) error {
+	panic("Unimplemented")
+}
+
+func (r *Repository) ReadFile(path string) ([]byte, error) {
 	f, err := r.fs.OpenFile(path, os.O_RDONLY, 0)
 	// Read the whole file
 	if err != nil {
@@ -49,7 +69,7 @@ func (r *Repository) FileContent(path string) ([]byte, error) {
 	defer func(f billy.File) {
 		err := f.Close()
 		if err != nil {
-			fmt.Printf("Error closing file %s: %s\n", path, err)
+			r.logger.Error().Msg(fmt.Sprintf("Error closing file %s: %s\n", path, err))
 		}
 	}(f)
 
@@ -64,7 +84,7 @@ func (r *Repository) FileContent(path string) ([]byte, error) {
 		return nil, err
 	}
 
-	fmt.Printf("Read %d bytes\n", bytesRead)
+	r.logger.Printf("Read %d bytes\n", bytesRead)
 
 	return content, nil
 }
@@ -104,9 +124,9 @@ func (r *Repository) recursiveFiles(dir string) ([]RepositoryFile, error) {
 }
 
 func (r *Repository) Commit() {
-	fmt.Println("Commiting")
+	panic("Unimplemented")
 }
 
 func (r *Repository) Push() {
-	fmt.Println("Pushing")
+	panic("Unimplemented")
 }

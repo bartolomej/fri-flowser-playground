@@ -83,13 +83,13 @@ func (p *Project) Open(projectUrl string) error {
 	return nil
 }
 
-func (p *Project) ExecuteScript(code []byte, argsJson string) (res string, err error) {
+func (p *Project) ExecuteScript(code []byte, argsJson string) (res []byte, err error) {
 	var args []cadence.Value
 	if argsJson != "" {
 		args, err = arguments.ParseJSON(argsJson)
 	}
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	result, err := p.kit.ExecuteScript(
@@ -99,16 +99,16 @@ func (p *Project) ExecuteScript(code []byte, argsJson string) (res string, err e
 	)
 
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return result.String(), err
+	return []byte(result.String()), err
 }
 
-func (p *Project) ExecuteTransaction(code []byte, argsJson string) (string, error) {
+func (p *Project) ExecuteTransaction(code []byte, argsJson string) ([]byte, error) {
 	state, err := p.kit.State()
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	serviceAccount, err := state.EmulatorServiceAccount()
 
@@ -117,7 +117,7 @@ func (p *Project) ExecuteTransaction(code []byte, argsJson string) (string, erro
 		args, err = arguments.ParseJSON(argsJson)
 	}
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	gasLimit := uint64(1000)
@@ -134,16 +134,16 @@ func (p *Project) ExecuteTransaction(code []byte, argsJson string) (string, erro
 	)
 
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	jsonResult, err := json.Marshal(result)
 
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	return string(jsonResult), err
+	return jsonResult, err
 }
 
 // setupAccounts creates account on the network and updates the state

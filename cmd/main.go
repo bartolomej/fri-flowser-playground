@@ -2,13 +2,14 @@ package main
 
 import (
 	"fmt"
+	"fri-flowser-playground/internal/project"
 	"os"
 )
 
 func main() {
-	project := New()
+	p := project.New()
 
-	err := project.Open("https://github.com/nvdtf/flow-nft-scaffold")
+	err := p.Open("https://github.com/nvdtf/flow-nft-scaffold")
 
 	if err != nil {
 		fmt.Println(fmt.Errorf("error opening project: %v", err))

@@ -1,4 +1,4 @@
-package main
+package git
 
 import (
 	"fmt"
@@ -9,18 +9,18 @@ import (
 	"path"
 )
 
-type GitRepository struct {
+type Repository struct {
 	repository *git.Repository
 	storage    *memory.Storage
 	fs         billy.Filesystem
 }
 
-type GitRepositoryFile struct {
+type RepositoryFile struct {
 	Path        string
 	IsDirectory bool
 }
 
-func (r *GitRepository) Clone(url string) error {
+func (r *Repository) Clone(url string) error {
 	fs := memfs.New()
 	storage := memory.NewStorage()
 	repository, err := git.Clone(storage, fs, &git.CloneOptions{
@@ -38,13 +38,13 @@ func (r *GitRepository) Clone(url string) error {
 	return nil
 }
 
-func (r *GitRepository) Files() ([]GitRepositoryFile, error) {
+func (r *Repository) Files() ([]RepositoryFile, error) {
 	return r.recursiveFiles(r.fs.Root())
 }
 
-func (r *GitRepository) recursiveFiles(dir string) ([]GitRepositoryFile, error) {
+func (r *Repository) recursiveFiles(dir string) ([]RepositoryFile, error) {
 	files, err := r.fs.ReadDir(dir)
-	repoFiles := make([]GitRepositoryFile, 0, len(files))
+	repoFiles := make([]RepositoryFile, 0, len(files))
 
 	for _, file := range files {
 		fullPath := path.Join(dir, file.Name())
@@ -55,14 +55,14 @@ func (r *GitRepository) recursiveFiles(dir string) ([]GitRepositoryFile, error) 
 				return nil, nestedErr
 			}
 
-			repoFiles = append(repoFiles, GitRepositoryFile{
+			repoFiles = append(repoFiles, RepositoryFile{
 				Path:        fullPath,
 				IsDirectory: true,
 			})
 
 			repoFiles = append(repoFiles, nestedFiles...)
 		} else {
-			repoFiles = append(repoFiles, GitRepositoryFile{
+			repoFiles = append(repoFiles, RepositoryFile{
 				Path:        fullPath,
 				IsDirectory: false,
 			})
@@ -72,10 +72,10 @@ func (r *GitRepository) recursiveFiles(dir string) ([]GitRepositoryFile, error) 
 	return repoFiles, err
 }
 
-func (r *GitRepository) Commit() {
+func (r *Repository) Commit() {
 	fmt.Println("Commiting")
 }
 
-func (r *GitRepository) Push() {
+func (r *Repository) Push() {
 	fmt.Println("Pushing")
 }

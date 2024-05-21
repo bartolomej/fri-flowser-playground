@@ -1,15 +1,19 @@
-package main
+package project
 
-import "fmt"
+import (
+	"fmt"
+	emulator2 "fri-flowser-playground/internal/emulator"
+	"fri-flowser-playground/internal/git"
+)
 
 type Project struct {
-	emulator   *FlowEmulator
-	repository *GitRepository
+	emulator   *emulator2.FlowEmulator
+	repository *git.Repository
 }
 
 func New() *Project {
-	repository := &GitRepository{}
-	emulator := &FlowEmulator{}
+	repository := &git.Repository{}
+	emulator := &emulator2.FlowEmulator{}
 
 	return &Project{
 		repository: repository,

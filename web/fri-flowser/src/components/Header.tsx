@@ -2,17 +2,16 @@
 import { Drawer, DrawerContent, DrawerTrigger } from "./ui/drawer";
 
 const Header = () => {
-    const onButtonClick = () => { }
 
     return (
         <header style={styles.header}>
             <Drawer direction="left">
                 <DrawerTrigger>
-                    <button onClick={onButtonClick}>Open</button>
+                    <p >Open</p>
                 </DrawerTrigger>
                 <div className="dark bg-[#213547]">
                     <DrawerContent className="bg-[#213547]" >
-                        
+
                     </DrawerContent>
                 </div>
             </Drawer>
@@ -28,10 +27,11 @@ const styles = {
         padding: '10px 20px',
         backgroundColor: '#282c34',
         color: 'white',
-        position: "fixed",
+        position: "relative",
         top: 0,
         left: 0,
-       width: "100vw",
+        width: "100vw",
+        height:"fit-content",
     },
     button: {
         padding: '10px 20px',

@@ -48,14 +48,6 @@ func (p *Project) Open(projectUrl string) error {
 		return err
 	}
 
-	files, err := p.repository.Files()
-
-	fmt.Printf("Cloned %d files\n", len(files))
-
-	if err != nil {
-		return err
-	}
-
 	err = p.blockchain.Start()
 
 	if err != nil {

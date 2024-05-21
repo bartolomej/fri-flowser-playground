@@ -3,7 +3,7 @@ import configureCadence from '@/common/candance';
 
 import {useEffect, useState} from 'react'
 import Editor, {Monaco} from '@monaco-editor/react';
-import {ProjectFile, ProjectService} from "@/project.service.ts";
+import {ProjectFile, ProjectService} from "@/common/project.service.ts";
 
 function App() {
     const LANGUAGE_CADENCE = 'cadence';
@@ -43,7 +43,7 @@ function App() {
                         .map(file => {
                             const fileName = file.path.split("/").reverse()[0]
                             return (
-                                <div key={file.path} onClick={() => setCode(file.path)}
+                                <div key={file.path} onClick={() => setCode(file.content)}
                                      className="max-w-[200px] truncate text-left">
                                     {fileName}
                                 </div>

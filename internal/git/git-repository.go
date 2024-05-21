@@ -20,6 +20,7 @@ type Repository struct {
 
 type RepositoryFile struct {
 	Path        string `json:"path"`
+	Content     string `json:"content"`
 	IsDirectory bool   `json:"isDirectory"`
 }
 
@@ -107,13 +108,21 @@ func (r *Repository) recursiveFiles(dir string) ([]RepositoryFile, error) {
 			repoFiles = append(repoFiles, RepositoryFile{
 				Path:        fullPath,
 				IsDirectory: true,
+				Content:     "",
 			})
 
 			repoFiles = append(repoFiles, nestedFiles...)
 		} else {
+			content, err := r.ReadFile(fullPath)
+
+			if err != nil {
+				return nil, err
+			}
+
 			repoFiles = append(repoFiles, RepositoryFile{
 				Path:        fullPath,
 				IsDirectory: false,
+				Content:     string(content),
 			})
 		}
 	}

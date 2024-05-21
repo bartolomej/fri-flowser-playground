@@ -1,6 +1,7 @@
 export type ProjectFile = {
     path: string;
     isDirectory: boolean;
+    content: string;
 }
 
 type ExecuteScriptRequest = {

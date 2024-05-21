@@ -61,7 +61,7 @@ func (r *Repository) WriteFile(filename string, data []byte, perm os.FileMode) e
 
 func (r *Repository) ReadFile(path string) ([]byte, error) {
 	f, err := r.fs.OpenFile(path, os.O_RDONLY, 0)
-	// Read the whole file
+
 	if err != nil {
 		return nil, err
 	}

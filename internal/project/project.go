@@ -11,8 +11,6 @@ import (
 	"github.com/onflow/flowkit/accounts"
 	"github.com/onflow/flowkit/output"
 	"github.com/rs/zerolog"
-	"path"
-	"strings"
 )
 
 type Project struct {
@@ -159,26 +157,6 @@ func (p *Project) initFlowKit() (*flowkit.Flowkit, error) {
 	flowKitLogger := newFlowKitLogger(p.logger)
 
 	return flowkit.NewFlowkit(state, *network, p.blockchain.Gateway(), flowKitLogger), nil
-}
-
-func (p *Project) cadenceContractFiles(files []git.RepositoryFile) ([]emulator.ContractDescriptor, error) {
-	contracts := make([]emulator.ContractDescriptor, 0)
-
-	for _, file := range files {
-		if path.Ext(file.Path) == ".cdc" && strings.Contains(file.Path, "/contracts/") {
-			source, err := p.repository.ReadFile(file.Path)
-
-			if err != nil {
-				return nil, err
-			}
-
-			contracts = append(contracts, emulator.ContractDescriptor{
-				Source: source,
-			})
-		}
-	}
-
-	return contracts, nil
 }
 
 type FlowKitLogger struct {

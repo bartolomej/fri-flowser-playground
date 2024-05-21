@@ -46,6 +46,7 @@ func transactionsHandler(w http.ResponseWriter, r *http.Request) {
 
 type CreateTransactionRequest struct {
 	Source    string `json:"source"`
+	Location  string `json:"location"`
 	Arguments string `json:"arguments"`
 }
 
@@ -67,7 +68,7 @@ func createTransactionHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result, err := currentProject.ExecuteTransaction([]byte(request.Source), request.Arguments)
+	result, err := currentProject.ExecuteTransaction([]byte(request.Source), request.Location, request.Arguments)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -94,6 +95,7 @@ func scriptsHandler(w http.ResponseWriter, r *http.Request) {
 
 type CreateScriptRequest struct {
 	Source    string `json:"source"`
+	Location  string `json:"location"`
 	Arguments string `json:"arguments"`
 }
 
@@ -115,7 +117,7 @@ func createScriptHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	result, err := currentProject.ExecuteScript([]byte(request.Source), request.Arguments)
+	result, err := currentProject.ExecuteScript([]byte(request.Source), request.Location, request.Arguments)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)

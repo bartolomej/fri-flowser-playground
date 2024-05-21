@@ -7,7 +7,7 @@ import {ProjectFile, ProjectService} from "@/common/project.service.ts";
 
 function App() {
     const LANGUAGE_CADENCE = 'cadence';
-    const [code, setCode] = useState('');
+    const [openFile, setOpenFile] = useState<ProjectFile>()
     const [args, setArgs] = useState('');
     const [projectFiles, setProjectFiles] = useState<ProjectFile[]>();
     const [executionResult, setExecutionResult] = useState<unknown>();
@@ -16,19 +16,25 @@ function App() {
     const projectUrl = urlParams.get('projectUrl');
 
     async function onExecute() {
-        const isScript = code.includes("pub fun main");
-        const isTransaction = code.includes("transaction");
+        if (!openFile) {
+            return;
+        }
+
+        const isScript = openFile.content.includes("pub fun main");
+        const isTransaction = openFile.content.includes("transaction");
 
         // A very dump heuristic to determine if Cadence code is a transaction or script
         if (isScript) {
             setExecutionResult(await service.executeScript({
-                source: code,
-                arguments: args
+                source: openFile.content,
+                arguments: args,
+                location: openFile.path
             }))
         } else if (isTransaction) {
             setExecutionResult(await service.executeTransaction({
-                source: code,
-                arguments: args
+                source: openFile.content,
+                arguments: args,
+                location: openFile.path
             }))
         }
     }
@@ -62,7 +68,7 @@ function App() {
                     .map(file => {
                         const fileName = file.path.split("/").reverse()[0]
                         return (
-                            <div key={file.path} onClick={() => setCode(file.content)}
+                            <div key={file.path} onClick={() => setOpenFile(file)}
                                  className="max-w-[200px] truncate text-left">
                                 {fileName}
                             </div>
@@ -71,15 +77,19 @@ function App() {
             </div>
 
             <div className="flex flex-col w-full">
-                <Editor
-                    theme='vs-dark'
-                    language={LANGUAGE_CADENCE}
-                    value={code}
-                    onChange={code => setCode(code ?? "")}
-                    className="h-[60vh] pt-2 w-full"
-                    options={{automaticLayout: true}}
-                    beforeMount={beforeEditorMount}
-                />
+                {openFile ? (
+                    <Editor
+                        theme='vs-dark'
+                        language={LANGUAGE_CADENCE}
+                        value={openFile?.content ?? ""}
+                        onChange={code => setOpenFile({...openFile, content: code ?? ""})}
+                        className="h-[60vh] pt-2 w-full"
+                        options={{automaticLayout: true}}
+                        beforeMount={beforeEditorMount}
+                    />
+                ) : (
+                    <div>No files open</div>
+                )}
 
                 <div className="h-[40vh] flex flex-row">
                     <pre>

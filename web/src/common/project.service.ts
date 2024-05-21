@@ -8,12 +8,16 @@ type ExecuteScriptRequest = {
     source: string;
     // Encoded using: https://cadence-lang.org/docs/json-cadence-spec
     arguments: any;
+    // File location (full path)
+    location: string;
 }
 
 type ExecuteTransactionRequest = {
     source: string;
     // Encoded using: https://cadence-lang.org/docs/json-cadence-spec
     arguments: any;
+    // File location (full path)
+    location: string;
 }
 
 type Config = {

@@ -79,7 +79,7 @@ func (p *Project) Open(projectUrl string) error {
 	return nil
 }
 
-func (p *Project) ExecuteScript(code []byte, argsJson string) (res []byte, err error) {
+func (p *Project) ExecuteScript(code []byte, location string, argsJson string) (res []byte, err error) {
 	var args []cadence.Value
 	if argsJson != "" {
 		args, err = arguments.ParseJSON(argsJson)
@@ -90,7 +90,7 @@ func (p *Project) ExecuteScript(code []byte, argsJson string) (res []byte, err e
 
 	result, err := p.kit.ExecuteScript(
 		context.Background(),
-		flowkit.Script{Code: code, Args: args},
+		flowkit.Script{Code: code, Args: args, Location: location},
 		flowkit.LatestScriptQuery,
 	)
 
@@ -101,7 +101,7 @@ func (p *Project) ExecuteScript(code []byte, argsJson string) (res []byte, err e
 	return []byte(result.String()), err
 }
 
-func (p *Project) ExecuteTransaction(code []byte, argsJson string) ([]byte, error) {
+func (p *Project) ExecuteTransaction(code []byte, location string, argsJson string) ([]byte, error) {
 	state, err := p.kit.State()
 	if err != nil {
 		return nil, err
@@ -125,7 +125,7 @@ func (p *Project) ExecuteTransaction(code []byte, argsJson string) ([]byte, erro
 			Authorizers: []accounts.Account{},
 			Payer:       *serviceAccount,
 		},
-		flowkit.Script{Code: code, Args: args, Location: ""},
+		flowkit.Script{Code: code, Args: args, Location: location},
 		gasLimit,
 	)
 

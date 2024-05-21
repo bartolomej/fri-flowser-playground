@@ -5,7 +5,9 @@ go 1.21.4
 require (
 	github.com/go-git/go-billy/v5 v5.5.0
 	github.com/go-git/go-git/v5 v5.12.0
+	github.com/onflow/cadence v0.42.10
 	github.com/onflow/flow-emulator v0.62.1
+	github.com/onflow/flow-go-sdk v0.46.2
 	github.com/onflow/flowkit v1.18.0
 	github.com/rs/zerolog v1.29.0
 )
@@ -135,13 +137,11 @@ require (
 	github.com/multiformats/go-varint v0.0.7 // indirect
 	github.com/olekukonko/tablewriter v0.0.5 // indirect
 	github.com/onflow/atree v0.6.0 // indirect
-	github.com/onflow/cadence v0.42.10 // indirect
 	github.com/onflow/crypto v0.25.1 // indirect
 	github.com/onflow/flow-core-contracts/lib/go/contracts v1.2.4-0.20231016154253-a00dbf7c061f // indirect
 	github.com/onflow/flow-core-contracts/lib/go/templates v1.2.4-0.20231016154253-a00dbf7c061f // indirect
 	github.com/onflow/flow-ft/lib/go/contracts v0.7.1-0.20230711213910-baad011d2b13 // indirect
 	github.com/onflow/flow-go v0.33.2-0.20240412174857-015156b297b5 // indirect
-	github.com/onflow/flow-go-sdk v0.46.2 // indirect
 	github.com/onflow/flow-nft/lib/go/contracts v1.1.0 // indirect
 	github.com/onflow/flow/protobuf/go/flow v0.4.0 // indirect
 	github.com/onflow/go-ethereum v1.13.4 // indirect

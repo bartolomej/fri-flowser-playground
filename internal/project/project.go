@@ -2,14 +2,18 @@ package project
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"fri-flowser-playground/internal/emulator"
 	"fri-flowser-playground/internal/git"
+	"github.com/onflow/cadence"
 	"github.com/onflow/flow-go-sdk"
 	"github.com/onflow/flow-go-sdk/crypto"
 	"github.com/onflow/flowkit"
 	"github.com/onflow/flowkit/accounts"
+	"github.com/onflow/flowkit/arguments"
 	"github.com/onflow/flowkit/output"
+	"github.com/onflow/flowkit/transactions"
 	"github.com/rs/zerolog"
 )
 
@@ -77,6 +81,69 @@ func (p *Project) Open(projectUrl string) error {
 	p.logger.Info().Msg(fmt.Sprintf("Deployed %d contracts\n", len(contracts)))
 
 	return nil
+}
+
+func (p *Project) ExecuteScript(code []byte, argsJson string) (res string, err error) {
+	var args []cadence.Value
+	if argsJson != "" {
+		args, err = arguments.ParseJSON(argsJson)
+	}
+	if err != nil {
+		return "", err
+	}
+
+	result, err := p.kit.ExecuteScript(
+		context.Background(),
+		flowkit.Script{Code: code, Args: args},
+		flowkit.LatestScriptQuery,
+	)
+
+	if err != nil {
+		return "", err
+	}
+
+	return result.String(), err
+}
+
+func (p *Project) ExecuteTransaction(code []byte, argsJson string) (string, error) {
+	state, err := p.kit.State()
+	if err != nil {
+		return "", err
+	}
+	serviceAccount, err := state.EmulatorServiceAccount()
+
+	var args []cadence.Value
+	if argsJson != "" {
+		args, err = arguments.ParseJSON(argsJson)
+	}
+	if err != nil {
+		return "", err
+	}
+
+	gasLimit := uint64(1000)
+
+	_, result, err := p.kit.SendTransaction(
+		context.Background(),
+		transactions.AccountRoles{
+			Proposer:    *serviceAccount,
+			Authorizers: []accounts.Account{},
+			Payer:       *serviceAccount,
+		},
+		flowkit.Script{Code: code, Args: args, Location: ""},
+		gasLimit,
+	)
+
+	if err != nil {
+		return "", err
+	}
+
+	jsonResult, err := json.Marshal(result)
+
+	if err != nil {
+		return "", err
+	}
+
+	return string(jsonResult), err
 }
 
 // setupAccounts creates account on the network and updates the state

@@ -18,6 +18,24 @@ func main() {
 		os.Exit(1)
 	}
 
+	result, err := p.ExecuteScript([]byte("pub fun main(): Int { return 0 }"), "")
+
+	if err != nil {
+		fmt.Println(fmt.Errorf("error executing script: %v", err))
+		os.Exit(1)
+	}
+
+	fmt.Println(result)
+
+	result, err = p.ExecuteTransaction([]byte("transaction { }"), "")
+
+	if err != nil {
+		fmt.Println(fmt.Errorf("error executing transaction: %v", err))
+		os.Exit(1)
+	}
+
+	fmt.Println(result)
+
 	// Prevent the function from returning
 	select {}
 }

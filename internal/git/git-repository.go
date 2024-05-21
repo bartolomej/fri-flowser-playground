@@ -79,12 +79,10 @@ func (r *Repository) ReadFile(path string) ([]byte, error) {
 	}
 	content := make([]byte, stat.Size())
 
-	bytesRead, err := f.Read(content)
+	_, err = f.Read(content)
 	if err != nil {
 		return nil, err
 	}
-
-	r.logger.Printf("Read %d bytes\n", bytesRead)
 
 	return content, nil
 }

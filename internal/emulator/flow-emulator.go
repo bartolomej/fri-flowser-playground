@@ -30,7 +30,6 @@ func New(logger *zerolog.Logger) *Blockchain {
 				emulator.WithTransactionValidationEnabled(false),
 				emulator.WithStorageLimitEnabled(false),
 				emulator.WithTransactionFeesEnabled(false),
-				emulator.WithSimpleAddresses(),
 			),
 		),
 	}

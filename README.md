@@ -4,8 +4,19 @@ This is an example implementation of the [Flowser playground](https://github.com
 
 ## Get started
 
-To start this project, run:
+Install dependencies:
+```
+cd web && npm i
+```
+
+Start backend:
 
 ```bash
 go run cmd/main.go
+```
+
+Start client:
+
+```bash
+cd web && npm run dev
 ```

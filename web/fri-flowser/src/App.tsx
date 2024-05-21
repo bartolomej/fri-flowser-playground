@@ -36,11 +36,6 @@ function App() {
     }
   };
 
-  useEffect(() => {
-    const initialContent = 'Hello, World!';
-    setEditorContent(initialContent);
-  }, []);
-
   return (
     <div className='flex flex-col'>
       <Header setEditorContent={setEditorContent} />

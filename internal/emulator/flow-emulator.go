@@ -1,55 +1,54 @@
 package emulator
 
 import (
-	"fmt"
 	"github.com/onflow/flow-emulator/emulator"
+	"github.com/onflow/flow-emulator/storage/memstore"
+	"github.com/onflow/flowkit"
+	"github.com/onflow/flowkit/gateway"
 	"github.com/rs/zerolog"
-	"os"
 )
 
-type FlowEmulator struct {
+type Blockchain struct {
 	logger     *zerolog.Logger
 	blockchain *emulator.Blockchain
+	flow       *flowkit.Flowkit
+	gateway    *gateway.EmulatorGateway
 }
 
-func (e *FlowEmulator) Start() error {
-	logger := initLogger()
+func New(logger *zerolog.Logger) *Blockchain {
+	return &Blockchain{
+		logger: logger,
+		gateway: gateway.NewEmulatorGatewayWithOpts(
+			&gateway.EmulatorKey{
+				PublicKey: emulator.DefaultServiceKey().AccountKey().PublicKey,
+				SigAlgo:   emulator.DefaultServiceKeySigAlgo,
+				HashAlgo:  emulator.DefaultServiceKeyHashAlgo,
+			},
+			gateway.WithEmulatorOptions(
+				emulator.WithLogger(*logger),
+				emulator.WithStore(memstore.New()),
+				emulator.WithTransactionValidationEnabled(false),
+				emulator.WithStorageLimitEnabled(false),
+				emulator.WithTransactionFeesEnabled(false),
+			),
+		),
+	}
+}
+
+func (b *Blockchain) Gateway() gateway.Gateway {
+	return b.gateway
+}
+
+func (b *Blockchain) Start() error {
 	blockchain, err := emulator.New(
-		emulator.WithLogger(*logger),
+		emulator.WithLogger(*b.logger),
 	)
 
 	if err != nil {
 		return err
 	}
 
-	e.blockchain = blockchain
-	e.logger = logger
+	b.blockchain = blockchain
 
 	return nil
-}
-
-func initLogger() *zerolog.Logger {
-
-	level := zerolog.InfoLevel
-	zerolog.MessageFieldName = "msg"
-
-	writer := zerolog.MultiLevelWriter(
-		NewTextWriter(),
-	)
-
-	logger := zerolog.New(writer).With().Timestamp().Logger().Level(level)
-
-	return &logger
-}
-
-func NewTextWriter() zerolog.ConsoleWriter {
-	writer := zerolog.ConsoleWriter{Out: os.Stdout}
-	writer.FormatMessage = func(i interface{}) string {
-		if i == nil {
-			return ""
-		}
-		return fmt.Sprintf("%-44s", i)
-	}
-
-	return writer
 }

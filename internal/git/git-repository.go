@@ -19,8 +19,8 @@ type Repository struct {
 }
 
 type RepositoryFile struct {
-	Path        string
-	IsDirectory bool
+	Path        string `json:"path"`
+	IsDirectory bool   `json:"isDirectory"`
 }
 
 func New(logger *zerolog.Logger) *Repository {

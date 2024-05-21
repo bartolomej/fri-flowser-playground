@@ -1,13 +1,16 @@
+import {Monaco} from "@monaco-editor/react";
+import {languages} from "monaco-editor";
+
 export const CADENCE_LANGUAGE_ID = "cadence";
 
-export default function configureCadence(monaco) {
+export default function configureCadence(monaco: Monaco) {
     monaco.languages.register({
       id: CADENCE_LANGUAGE_ID,
       extensions: [".cdc"],
       aliases: ["CDC", "cdc"],
     });
-  
-    const languageDef = {
+
+    const languageDef: languages.IMonarchLanguage = {
       keywords: [
         "if", "else", "return", "continue", "break", "while", "pre", "post",
         "prepare", "execute", "import", "from", "create", "destroy", "priv",
@@ -79,6 +82,6 @@ export default function configureCadence(monaco) {
         ],
       },
     };
-  
+
     monaco.languages.setMonarchTokensProvider(CADENCE_LANGUAGE_ID, languageDef);
   }

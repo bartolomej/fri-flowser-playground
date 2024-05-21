@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"fri-flowser-playground/internal/project"
+	"github.com/rs/cors"
 	"github.com/rs/zerolog"
 	"io"
 	"net/http"
@@ -17,13 +18,16 @@ var port = 8080
 func main() {
 	logger := initLogger()
 
-	http.HandleFunc("/projects", projectsHandler)
-	http.HandleFunc("/transactions", transactionsHandler)
-	http.HandleFunc("/scripts", scriptsHandler)
+	mux := http.NewServeMux()
+	mux.HandleFunc("/projects", projectsHandler)
+	mux.HandleFunc("/projects/files", projectFilesHandler)
+	mux.HandleFunc("/transactions", transactionsHandler)
+	mux.HandleFunc("/scripts", scriptsHandler)
 
+	corsHandler := cors.Default().Handler(mux)
 	logger.Info().Msgf("Server is running at http://localhost:%d", port)
 
-	err := http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
+	err := http.ListenAndServe(fmt.Sprintf(":%d", port), corsHandler)
 
 	if err != nil {
 		logger.Fatal().Err(err).Msg("Failed to start server")
@@ -121,6 +125,43 @@ func createScriptHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	_, err = w.Write(result)
+
+	if err != nil {
+		logger.Fatal().Err(err).Msg("Failed to write response")
+	}
+}
+
+func projectFilesHandler(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "GET":
+		listProjectFilesHandler(w, r)
+	default:
+		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
+	}
+}
+
+func listProjectFilesHandler(w http.ResponseWriter, r *http.Request) {
+	if currentProject == nil {
+		http.Error(w, "Project not created", http.StatusBadRequest)
+		return
+	}
+
+	files, err := currentProject.Files()
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	jsonFiles, err := json.Marshal(files)
+
+	if err != nil {
+		logger.Fatal().Err(err)
+	}
+
+	_, err = w.Write(jsonFiles)
 
 	if err != nil {
 		logger.Fatal().Err(err).Msg("Failed to write response")

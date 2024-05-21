@@ -9,6 +9,7 @@ require (
 	github.com/onflow/flow-emulator v0.62.1
 	github.com/onflow/flow-go-sdk v0.46.2
 	github.com/onflow/flowkit v1.18.0
+	github.com/rs/cors v1.8.0
 	github.com/rs/zerolog v1.29.0
 )
 

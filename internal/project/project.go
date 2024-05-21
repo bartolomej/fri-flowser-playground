@@ -35,6 +35,10 @@ func New(logger *zerolog.Logger) *Project {
 	}
 }
 
+func (p *Project) Files() ([]git.RepositoryFile, error) {
+	return p.repository.Files()
+}
+
 func (p *Project) Open(projectUrl string) error {
 	fmt.Printf("Cloning project: %s\n", projectUrl)
 

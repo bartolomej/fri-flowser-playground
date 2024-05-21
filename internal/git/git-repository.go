@@ -6,6 +6,7 @@ import (
 	"github.com/go-git/go-billy/v5/memfs"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/storage/memory"
+	"os"
 	"path"
 )
 
@@ -36,6 +37,36 @@ func (r *Repository) Clone(url string) error {
 	r.storage = storage
 
 	return nil
+}
+
+func (r *Repository) FileContent(path string) ([]byte, error) {
+	f, err := r.fs.OpenFile(path, os.O_RDONLY, 0)
+	// Read the whole file
+	if err != nil {
+		return nil, err
+	}
+
+	defer func(f billy.File) {
+		err := f.Close()
+		if err != nil {
+			fmt.Printf("Error closing file %s: %s\n", path, err)
+		}
+	}(f)
+
+	stat, err := r.fs.Stat(path)
+	if err != nil {
+		return nil, err
+	}
+	content := make([]byte, stat.Size())
+
+	bytesRead, err := f.Read(content)
+	if err != nil {
+		return nil, err
+	}
+
+	fmt.Printf("Read %d bytes\n", bytesRead)
+
+	return content, nil
 }
 
 func (r *Repository) Files() ([]RepositoryFile, error) {

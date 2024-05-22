@@ -4,7 +4,8 @@ import configureCadence from '@/common/candance';
 import { useEffect, useState } from 'react'
 import Editor, { Monaco } from '@monaco-editor/react';
 import { BlockchainState, ProjectFile, ProjectLog, ProjectService } from "@/common/project.service.ts";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/tabs.tsx"
+import {JsonView} from "@/components/JsonView.tsx";
 
 
 function App() {
@@ -84,51 +85,56 @@ function App() {
         )
     }
 
+    const sidebarWidth = 300;
+
     return (
-        <div className='flex flex-row w-[100vw]'>
-            <div className="flex flex-col gap-y-[10px] w-[20%] p-2">
+        <div className='flex flex-row'>
+            <div className="flex flex-col gap-y-[10px] flex-1 p-2" style={{width: sidebarWidth}}>
+                <b>PROJECT FILES</b>
                 {projectFiles
                     ?.filter(file => !file.isDirectory)
                     .map(file => {
                         const fileName = file.path.split("/").reverse()[0]
                         return (
                             <div key={file.path} onClick={() => setOpenFile(file)}
-                                className="max-w-[200px] truncate text-left hover:cursor-pointer hover:opacity-20">
+                                className="truncate text-left hover:cursor-pointer transition-all hover:translate-x-[5px]">
                                 {fileName}
                             </div>
                         )
                     })}
             </div>
 
-            <div className="flex flex-col w-[80%]">
-                {openFile ? (
-                    <Editor
-                        theme='vs-dark'
-                        language={LANGUAGE_CADENCE}
-                        value={openFile?.content ?? ""}
-                        onChange={code => setOpenFile({ ...openFile, content: code ?? "" })}
-                        className="h-[60vh] pt-2 w-full"
-                        options={{ automaticLayout: true }}
-                        beforeMount={beforeEditorMount}
-                    />
-                ) : (
-                    <div>No files open</div>
-                )}
+            <div className="flex flex-col w-full flex-1" style={{width: `calc(100vh - ${sidebarWidth}px)`}}>
+                <div className="h-[60vh]">
+                    {openFile ? (
+                        <Editor
+                            theme='vs-dark'
+                            language={LANGUAGE_CADENCE}
+                            value={openFile?.content ?? ""}
+                            onChange={code => setOpenFile({ ...openFile, content: code ?? "" })}
+                            className="h-[60vh] pt-2 w-full"
+                            options={{ automaticLayout: true }}
+                            beforeMount={beforeEditorMount}
+                        />
+                    ) : (
+                        <div>No files open</div>
+                    )}
+                </div>
 
-                <div className="h-[38vh] flex flex-row w-[100%]">
+                <div className="h-[40vh] max-h-[40vh] flex flex-row w-[100%]">
                     <Tabs defaultValue="json" className="w-[100%]">
                         <TabsList className='bg-[#242424]'>
-                            <TabsTrigger className='border border-1 border-white' value="json">JSON</TabsTrigger>
-                            <TabsTrigger className='border border-1 border-white' value="log">Log</TabsTrigger>
+                            <TabsTrigger className='border border-1 border-white' value="state">State</TabsTrigger>
+                            <TabsTrigger className='border border-1 border-white' value="logs">Logs</TabsTrigger>
                             <TabsTrigger className='border border-1 border-white' value="execute">Execute</TabsTrigger>
                         </TabsList>
-                        <TabsContent className='w-[100%]' value="json">
-                            <pre className="overflow-scroll h-[38vh]">
-                                {JSON.stringify(blockchainState, null, 4)}
-                            </pre>
+
+                        <TabsContent className='w-[100%]' value="state">
+                            {blockchainState ? <JsonView style={{height: "100%", borderRadius: 10, padding: 10}} name="blockchain" src={blockchainState} /> : "Loading..."}
                         </TabsContent>
-                        <TabsContent value="log" className='w-[100%] h-[38vh]'>
-                            <pre className='max-h-[38vh] h-[38vh] overflow-y-auto'>
+
+                        <TabsContent value="logs" className="h-full">
+                            <pre className='overflow-y-auto h-full'>
                                 {projectLogs
                                     ?.filter(log => log.level !== "debug")
                                     ?.sort((a, b) => b.time.getTime() - a.time.getTime())
@@ -137,17 +143,29 @@ function App() {
                                     ))}
                             </pre>
                         </TabsContent>
+
                         <TabsContent value="execute" className='w-[100%]'>
-                            <div className='h-[38vh]'>
-                                <pre>
-                                    {JSON.stringify(executionResult, null, 4)}
-                                </pre>
-                                <div>
-                                    <label>
-                                        Arguments
-                                        <textarea rows={10} value={args} onChange={e => setArgs(e.target.value)}></textarea>
-                                    </label>
+                            <div className="flex gap-x-[10px]">
+                                <div className="flex-1">
+                                    Arguments:
+                                    <Editor
+                                        theme='vs-dark'
+                                        language={"JavaScript"}
+                                        value={args}
+                                        onChange={code => setArgs(code ?? "")}
+                                        options={{automaticLayout: true}}
+                                        height={200}
+                                    />
                                     <button onClick={onExecute}>Execute</button>
+                                </div>
+                                <div className="flex-1">
+                                    {executionResult ? (
+                                        <pre>
+                                            <JsonView style={{height: "100%", borderRadius: 10, padding: 10}} name="result" src={executionResult} />
+                                        </pre>
+                                    ) : (
+                                        <div className="flex justify-center items-center h-full">Execute to see results</div>
+                                    )}
                                 </div>
                             </div>
                         </TabsContent>

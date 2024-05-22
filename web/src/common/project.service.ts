@@ -11,7 +11,7 @@ export type ProjectLog = Record<string, unknown> & {
 }
 
 // TODO: Define type if needed later
-export type BlockchainState = unknown;
+export type BlockchainState = object;
 
 type ExecuteScriptRequest = {
     source: string;

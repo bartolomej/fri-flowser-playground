@@ -3,12 +3,13 @@ import configureCadence from '@/common/candance';
 
 import {useEffect, useState} from 'react'
 import Editor, {Monaco} from '@monaco-editor/react';
-import {ProjectFile, ProjectLog, ProjectService} from "@/common/project.service.ts";
+import {BlockchainState, ProjectFile, ProjectLog, ProjectService} from "@/common/project.service.ts";
 
 function App() {
     const LANGUAGE_CADENCE = 'cadence';
     const [openFile, setOpenFile] = useState<ProjectFile>()
     const [args, setArgs] = useState('');
+    const [blockchainState, setBlockchainState] = useState<BlockchainState>();
     const [projectLogs, setProjectLogs] = useState<ProjectLog[]>();
     const [projectFiles, setProjectFiles] = useState<ProjectFile[]>();
     const [executionResult, setExecutionResult] = useState<unknown>();
@@ -59,6 +60,16 @@ function App() {
         }
     }, [projectUrl]);
 
+    useEffect(() => {
+        if (projectUrl) {
+            const interval = setInterval(async () => {
+                setBlockchainState(await service.getProjectBlockchainState())
+            }, 1000);
+
+            return () => clearInterval(interval)
+        }
+    }, [projectUrl]);
+
     const beforeEditorMount = (monaco: Monaco) => {
         configureCadence(monaco);
     }
@@ -103,6 +114,9 @@ function App() {
                 )}
 
                 <div className="h-[40vh] flex flex-row">
+                    <pre className="max-w-[1000px] overflow-scroll">
+                        {JSON.stringify(blockchainState, null, 4)}
+                    </pre>
                     <pre>
                         {projectLogs
                             ?.filter(log => log.level !== "debug")

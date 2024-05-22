@@ -10,6 +10,9 @@ export type ProjectLog = Record<string, unknown> & {
     msg: string;
 }
 
+// TODO: Define type if needed later
+export type BlockchainState = unknown;
+
 type ExecuteScriptRequest = {
     source: string;
     // Encoded using: https://cadence-lang.org/docs/json-cadence-spec
@@ -32,6 +35,10 @@ type Config = {
 
 export class ProjectService {
     constructor(private readonly config: Config) {
+    }
+
+    async getProjectBlockchainState(): Promise<BlockchainState> {
+        return fetch(`${this.config.baseUrl}/projects/blockchain-state`).then(res => res.json());
     }
 
     async listProjectLogs(): Promise<ProjectLog[]> {

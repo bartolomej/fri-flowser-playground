@@ -23,6 +23,7 @@ func main() {
 	mux.HandleFunc("/projects", projectsHandler)
 	mux.HandleFunc("/projects/files", projectFilesHandler)
 	mux.HandleFunc("/projects/logs", projectLogsHandler)
+	mux.HandleFunc("/projects/blockchain-state", blockchainStateHandler)
 	mux.HandleFunc("/projects/transactions", transactionsHandler)
 	mux.HandleFunc("/projects/scripts", scriptsHandler)
 
@@ -129,6 +130,38 @@ func createScriptHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	_, err = w.Write(result)
+
+	if err != nil {
+		logger.Fatal().Err(err).Msg("Failed to write response")
+	}
+}
+
+func blockchainStateHandler(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "GET":
+		getBlockchainState(w, r)
+	default:
+		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
+	}
+}
+
+func getBlockchainState(w http.ResponseWriter, r *http.Request) {
+	if currentProject == nil {
+		http.Error(w, "Project not created", http.StatusBadRequest)
+		return
+	}
+
+	jsonState, err := currentProject.BlockchainState()
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+
+	_, err = w.Write(jsonState)
 
 	if err != nil {
 		logger.Fatal().Err(err).Msg("Failed to write response")

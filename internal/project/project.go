@@ -79,6 +79,10 @@ func (p *Project) Open(projectUrl string) error {
 	return nil
 }
 
+func (p *Project) BlockchainState() ([]byte, error) {
+	return p.blockchain.State()
+}
+
 func (p *Project) ExecuteScript(code []byte, location string, argsJson string) (res []byte, err error) {
 	var args []cadence.Value
 	if argsJson != "" {

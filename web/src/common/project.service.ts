@@ -4,6 +4,12 @@ export type ProjectFile = {
     content: string;
 }
 
+export type ProjectLog = Record<string, unknown> & {
+    level: string;
+    time: Date;
+    msg: string;
+}
+
 type ExecuteScriptRequest = {
     source: string;
     // Encoded using: https://cadence-lang.org/docs/json-cadence-spec
@@ -25,7 +31,19 @@ type Config = {
 }
 
 export class ProjectService {
-    constructor(private readonly config: Config) {}
+    constructor(private readonly config: Config) {
+    }
+
+    async listProjectLogs(): Promise<ProjectLog[]> {
+        return fetch(`${this.config.baseUrl}/projects/logs`).then(res => res.json()).then(logs => logs.map((log: string) => {
+            const parsedLog = JSON.parse(log);
+
+            return {
+                ...parsedLog,
+                time: new Date(parsedLog.time)
+            }
+        }));
+    }
 
     async listProjectFiles(): Promise<ProjectFile[]> {
         return fetch(`${this.config.baseUrl}/projects/files`).then(res => res.json());
@@ -34,19 +52,19 @@ export class ProjectService {
     async openProject(projectUrl: string): Promise<void> {
         await fetch(`${this.config.baseUrl}/projects`, {
             method: "POST",
-            body: JSON.stringify({ projectUrl })
+            body: JSON.stringify({projectUrl})
         });
     }
 
     async executeScript(request: ExecuteScriptRequest): Promise<unknown> {
-        return fetch(`${this.config.baseUrl}/scripts`, {
+        return fetch(`${this.config.baseUrl}/projects/scripts`, {
             method: "POST",
             body: JSON.stringify(request)
         }).then(res => res.json());
     }
 
     async executeTransaction(request: ExecuteTransactionRequest): Promise<unknown> {
-        return fetch(`${this.config.baseUrl}/transactions`, {
+        return fetch(`${this.config.baseUrl}/projects/transactions`, {
             method: "POST",
             body: JSON.stringify(request)
         }).then(res => res.json());

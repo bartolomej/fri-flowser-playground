@@ -13,16 +13,18 @@ import (
 
 var currentProject *project.Project
 var logger *zerolog.Logger
+var logCache *CacheLogWriter
 var port = 8080
 
 func main() {
-	logger := initLogger()
+	logger, logCache = initLogger()
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/projects", projectsHandler)
 	mux.HandleFunc("/projects/files", projectFilesHandler)
-	mux.HandleFunc("/transactions", transactionsHandler)
-	mux.HandleFunc("/scripts", scriptsHandler)
+	mux.HandleFunc("/projects/logs", projectLogsHandler)
+	mux.HandleFunc("/projects/transactions", transactionsHandler)
+	mux.HandleFunc("/projects/scripts", scriptsHandler)
 
 	corsHandler := cors.Default().Handler(mux)
 	logger.Info().Msgf("Server is running at http://localhost:%d", port)
@@ -133,6 +135,38 @@ func createScriptHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func projectLogsHandler(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "GET":
+		listProjectLogs(w, r)
+	default:
+		http.Error(w, http.StatusText(http.StatusMethodNotAllowed), http.StatusMethodNotAllowed)
+	}
+}
+
+func listProjectLogs(w http.ResponseWriter, r *http.Request) {
+	if currentProject == nil {
+		http.Error(w, "Project not created", http.StatusBadRequest)
+		return
+	}
+
+	jsonLogs, err := logCache.LogsJson()
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+
+	_, err = w.Write(jsonLogs)
+
+	if err != nil {
+		logger.Fatal().Err(err).Msg("Failed to write response")
+	}
+}
+
 func projectFilesHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
@@ -184,7 +218,6 @@ type CreateProjectRequest struct {
 }
 
 func createProjectHandler(w http.ResponseWriter, r *http.Request) {
-	logger = initLogger()
 	currentProject = project.New(logger)
 
 	body, err := io.ReadAll(r.Body)
@@ -210,18 +243,21 @@ func createProjectHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 }
 
-func initLogger() *zerolog.Logger {
+func initLogger() (*zerolog.Logger, *CacheLogWriter) {
 
 	level := zerolog.InfoLevel
 	zerolog.MessageFieldName = "msg"
 
+	cacheWriter := NewCacheLogWriter()
+
 	writer := zerolog.MultiLevelWriter(
 		NewTextWriter(),
+		cacheWriter,
 	)
 
 	logger := zerolog.New(writer).With().Timestamp().Logger().Level(level)
 
-	return &logger
+	return &logger, cacheWriter
 }
 
 func NewTextWriter() zerolog.ConsoleWriter {
@@ -234,4 +270,31 @@ func NewTextWriter() zerolog.ConsoleWriter {
 	}
 
 	return writer
+}
+
+type CacheLogWriter struct {
+	logs []string
+}
+
+func NewCacheLogWriter() *CacheLogWriter {
+	return &CacheLogWriter{
+		logs: make([]string, 0),
+	}
+}
+
+var _ io.Writer = &CacheLogWriter{}
+
+func (c *CacheLogWriter) Write(p []byte) (n int, err error) {
+	c.logs = append(c.logs, string(p))
+	return len(p), nil
+}
+
+func (c *CacheLogWriter) LogsJson() ([]byte, error) {
+	res, err := json.Marshal(&c.logs)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
 }

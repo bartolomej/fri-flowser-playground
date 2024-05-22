@@ -3,12 +3,13 @@ import configureCadence from '@/common/candance';
 
 import {useEffect, useState} from 'react'
 import Editor, {Monaco} from '@monaco-editor/react';
-import {ProjectFile, ProjectService} from "@/common/project.service.ts";
+import {ProjectFile, ProjectLog, ProjectService} from "@/common/project.service.ts";
 
 function App() {
     const LANGUAGE_CADENCE = 'cadence';
     const [openFile, setOpenFile] = useState<ProjectFile>()
     const [args, setArgs] = useState('');
+    const [projectLogs, setProjectLogs] = useState<ProjectLog[]>();
     const [projectFiles, setProjectFiles] = useState<ProjectFile[]>();
     const [executionResult, setExecutionResult] = useState<unknown>();
     const service = new ProjectService({baseUrl: "http://localhost:8080"});
@@ -46,6 +47,16 @@ function App() {
                 setProjectFiles(await service.listProjectFiles())
             }
         })()
+    }, [projectUrl]);
+
+    useEffect(() => {
+        if (projectUrl) {
+            const interval = setInterval(async () => {
+                setProjectLogs(await service.listProjectLogs())
+            }, 1000);
+
+            return () => clearInterval(interval)
+        }
     }, [projectUrl]);
 
     const beforeEditorMount = (monaco: Monaco) => {
@@ -93,6 +104,14 @@ function App() {
 
                 <div className="h-[40vh] flex flex-row">
                     <pre>
+                        {projectLogs
+                            ?.filter(log => log.level !== "debug")
+                            ?.sort((a, b) => b.time.getTime() - a.time.getTime())
+                            .map((log, i) => (
+                                <div key={i}>[{log.level}][{getFormattedTime(log)}] {log.msg}</div>
+                            ))}
+                    </pre>
+                    <pre>
                         {JSON.stringify(executionResult, null, 4)}
                     </pre>
                     <div>
@@ -106,6 +125,10 @@ function App() {
             </div>
         </div>
     )
+}
+
+function getFormattedTime(log: ProjectLog): string {
+    return log.time.toISOString().split("T")[1].split(".")[0]
 }
 
 export default App;

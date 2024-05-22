@@ -20,3 +20,21 @@ Start client:
 ```bash
 cd web && npm run dev
 ```
+
+## Building
+
+### Cross compiling for Windows
+
+Since the dependency [onflow/crypto](https://github.com/onflow/crypto/tree/e9ca850f06dfd0e3f56fe0e3233c1ebb32b2e4d0) depends on native C libraries and uses [cgo](https://go.dev/wiki/cgo) to build that, we must have a C compiler installed locally.
+
+When cross-compiling from MacOS, you must install the MinGW toolchain with:
+
+```bash
+brew install mingw-w64
+```
+
+Then you can build the program for Windows with:
+
+```bash
+CGO_ENABLED=1 GOOS=windows GOARCH=amd64 CC=x86_64-w64-mingw32-gcc go build cmd/main.go
+```

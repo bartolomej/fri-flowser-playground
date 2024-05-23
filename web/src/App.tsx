@@ -89,7 +89,7 @@ function App() {
 
     return (
         <div className='flex flex-row'>
-            <div className="flex flex-col gap-y-[10px] flex-1 p-2" style={{width: sidebarWidth}}>
+            <div className="flex flex-col gap-y-[10px] flex-1 p-2" style={{width: sidebarWidth, maxWidth: sidebarWidth}}>
                 <b>PROJECT FILES</b>
                 {projectFiles
                     ?.filter(file => !file.isDirectory)
@@ -104,7 +104,7 @@ function App() {
                     })}
             </div>
 
-            <div className="flex flex-col w-full flex-1" style={{width: `calc(100vh - ${sidebarWidth}px)`}}>
+            <div className="flex flex-col w-full flex-1" style={{width: `calc(100vw - ${sidebarWidth}px)`}}>
                 <div className="h-[60vh]">
                     {openFile ? (
                         <Editor

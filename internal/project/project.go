@@ -125,7 +125,8 @@ func (p *Project) ExecuteTransaction(code []byte, location string, argsJson stri
 	_, result, err := p.kit.SendTransaction(
 		context.Background(),
 		transactions.AccountRoles{
-			Proposer:    *serviceAccount,
+			Proposer: *serviceAccount,
+			// TODO: Populate authorizers depending on the prepare statement argument count
 			Authorizers: []accounts.Account{},
 			Payer:       *serviceAccount,
 		},

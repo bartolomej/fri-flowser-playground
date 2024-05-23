@@ -2,6 +2,17 @@
 
 This is an example implementation of the [Flowser playground](https://github.com/onflow/developer-grants/issues/260), which will replace the current [Flow playground](https://play.flow.com/).
 
+## Features
+
+- Clone project from Github
+- Deploy the project contracts
+- View and edit project files
+- Execute transactions and scripts
+- View project logs and blockchain state
+
+<img src="https://github.com/bartolomej/fri-flowser-playground/assets/36109955/a028462e-bf11-4e29-bdbf-a282806d6669" />
+
+
 ## Get started
 
 Install dependencies:

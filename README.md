@@ -2,6 +2,8 @@
 
 This is an example implementation of the [Flowser playground](https://github.com/onflow/developer-grants/issues/260), which will replace the current [Flow playground](https://play.flow.com/).
 
+> Note: This was a prototype project. Development continued on [flow-wasm](https://github.com/onflowser/flow-wasm) and [flowser](https://github.com/onflowser/flowser) repos.
+
 ## Features
 
 - Clone project from Github
